@@ -1,6 +1,5 @@
 from ariadne import QueryType, MutationType
-from .models import User, Post
-from . import db
+from .models import User, Post, db
 
 # GraphQL Type Definitions
 type_defs = """

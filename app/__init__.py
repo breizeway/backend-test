@@ -1,16 +1,16 @@
 from flask import Flask, request
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
 from ariadne import make_executable_schema, graphql_sync
-from ariadne.explorer import ExplorerGraphQL
+from ariadne.explorer import ExplorerGraphiQL
 from dotenv import load_dotenv
 
+# Import db and models
+from .models import db
 from .schema import type_defs, resolvers
 
 load_dotenv()
 
-db = SQLAlchemy()
 migrate = Migrate()
 
 
@@ -18,24 +18,21 @@ def create_app(config_name=None):
     app = Flask(__name__)
 
     # Configuration
-    if config_name:
-        app.config.from_object(f"config.{config_name}")
-    else:
-        app.config.from_object("config.DevelopmentConfig")
+    from config import config
+
+    config_name = config_name or "default"
+    app.config.from_object(config[config_name])
 
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
     CORS(app)
 
-    # Import models to register them
-    from . import models
-
     # GraphQL Schema
     schema = make_executable_schema(type_defs, resolvers)
 
     # GraphQL Explorer (development)
-    explorer_html = ExplorerGraphQL().html(None)
+    explorer_html = ExplorerGraphiQL().html(None)
 
     @app.route("/graphql", methods=["GET"])
     def graphql_explorer():

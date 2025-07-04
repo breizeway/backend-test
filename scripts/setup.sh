@@ -37,9 +37,20 @@ fi
 # Initialize database
 echo "Initializing database..."
 export FLASK_APP=app.py
-flask db init || true
-flask db migrate -m "Initial migration" || true
-flask db upgrade || true
+
+# Initialize Flask-Migrate if not already done
+if [ ! -d "migrations" ]; then
+    echo "Initializing Flask-Migrate..."
+    flask db init
+fi
+
+# Create initial migration
+echo "Creating initial migration..."
+flask db migrate -m "Initial migration" || echo "Migration may already exist"
+
+# Apply migration
+echo "Applying migration..."
+flask db upgrade || echo "Migration may already be applied"
 
 echo "Setup completed successfully!"
 echo ""
